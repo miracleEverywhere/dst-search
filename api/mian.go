@@ -18,7 +18,7 @@ func main() {
 	flag.Parse()
 
 	r := gin.Default()
-	r.GET("/search", handlers.Search)
+	r.POST("/search", handlers.Search)
 	r.POST("/detail", handlers.Detail)
 	r.Use(static.ServeEmbed("dist", EmbedFS))
 

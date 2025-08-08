@@ -57,7 +57,7 @@ func Search(c *gin.Context) {
 	}
 
 	var searchForm SearchForm
-	if err := c.ShouldBindQuery(&searchForm); err != nil {
+	if err := c.ShouldBindJSON(&searchForm); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -71,8 +71,6 @@ func Search(c *gin.Context) {
 	var mu sync.Mutex
 	// 结果收集
 	var data []SearchRoomItem
-	// 错误收集
-	var errors []error
 
 	// 为每个 region 启动一个 goroutine
 	for _, region := range searchForm.Regions {
@@ -82,30 +80,21 @@ func Search(c *gin.Context) {
 
 			url := fmt.Sprintf("https://lobby-v2-cdn.klei.com/%s-Steam.json.gz", region)
 			client := &http.Client{
-				Timeout: 5 * time.Second,
+				Timeout: 30 * time.Second,
 			}
 
 			httpResponse, err := client.Get(url)
 			if err != nil {
-				mu.Lock()
-				errors = append(errors, fmt.Errorf("region %s: %v", region, err))
-				mu.Unlock()
 				return
 			}
 			defer httpResponse.Body.Close()
 
 			if httpResponse.StatusCode != http.StatusOK {
-				mu.Lock()
-				errors = append(errors, fmt.Errorf("region %s: status code %d", region, httpResponse.StatusCode))
-				mu.Unlock()
 				return
 			}
 
 			var searchResponse SearchResponse
 			if err := json.NewDecoder(httpResponse.Body).Decode(&searchResponse); err != nil {
-				mu.Lock()
-				errors = append(errors, fmt.Errorf("region %s: decode error %v", region, err))
-				mu.Unlock()
 				return
 			}
 
@@ -129,16 +118,8 @@ func Search(c *gin.Context) {
 	// 等待所有 goroutine 完成
 	wg.Wait()
 
-	// 如果有错误发生，返回第一个错误
-	if len(errors) > 0 {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": errors[0].Error(),
-			"data":  data, // 仍然返回已获取的数据
-		})
-		return
-	}
-
 	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
 		"data": data,
 	})
 }

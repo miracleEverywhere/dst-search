@@ -11,6 +11,7 @@
   "dependencies": {
     "@fontsource/roboto": "5.2.6",
     "@mdi/font": "7.4.47",
+    "axios": "^1.8.2",
     "vue": "^3.5.18",
     "vuetify": "^3.9.4"
   },
