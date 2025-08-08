@@ -3,34 +3,28 @@
     app
     height="40"
   >
-    <a
-      v-for="item in items"
-      :key="item.title"
-      class="d-inline-block mx-2 social-link"
-      :href="item.href"
-      rel="noopener noreferrer"
-      target="_blank"
-      :title="item.title"
-    >
-      <v-icon
-        :icon="item.icon"
-        :size="item.icon === '$vuetify' ? 24 : 16"
-      />
-    </a>
 
     <div
       class="text-caption text-disabled"
       style="position: absolute; right: 16px;"
     >
-      &copy; 2016-{{ (new Date()).getFullYear() }} <span class="d-none d-sm-inline-block">Vuetify, LLC</span>
-      —
+      <v-icon icon="mdi-github"></v-icon>
+      <a
+          class="text-decoration-none on-surface"
+          href="https://github.com/miracleEverywhere/dst-search"
+          rel="noopener noreferrer"
+          target="_blank"
+      >
+        dst-search
+      </a>
+      <v-icon icon="mdi-license"></v-icon>
       <a
         class="text-decoration-none on-surface"
-        href="https://vuetifyjs.com/about/licensing/"
+        href="https://github.com/miracleEverywhere/dst-search?tab=MIT-1-ov-file"
         rel="noopener noreferrer"
         target="_blank"
       >
-        MIT License
+        MIT
       </a>
     </div>
   </v-footer>

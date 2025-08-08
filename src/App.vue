@@ -1,13 +1,14 @@
 <template>
   <v-app>
     <v-main>
-      <HelloWorld />
+      <main-page />
     </v-main>
 
-    <AppFooter />
+    <app-footer/>
   </v-app>
 </template>
 
 <script setup>
-  //
+import MainPage from '@/components/MainPage.vue'
+import AppFooter from '@/components/AppFooter.vue'
 </script>
