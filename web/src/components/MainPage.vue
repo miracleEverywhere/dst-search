@@ -224,7 +224,11 @@
                     </v-row>
                     <v-divider class="mt-8 mb-8"></v-divider>
                     <v-row class="d-flex justify-center">
-                      <v-data-table :headers="playerHeaders" :items="parsedDetailData.players" class="w-75">
+                      <v-data-table :headers="playerHeaders" :loading="detailLoading"
+                                    :items="parsedDetailData.players" class="w-75">
+                        <template v-slot:loading>
+                          <v-skeleton-loader type="table-row@4"></v-skeleton-loader>
+                        </template>
                         <template #top>
                           <div class="d-flex justify-center text-h6">在线玩家</div>
                         </template>
@@ -242,7 +246,10 @@
                     <v-divider class="mt-8 mb-8"></v-divider>
                     <v-row>
                       <v-col class="d-flex justify-center">
-                        <v-data-table :headers="modHeaders" :items="modInfo" class="w-75">
+                        <v-data-table :headers="modHeaders" :items="modInfo" :loading="modLoading" class="w-75">
+                          <template v-slot:loading>
+                            <v-skeleton-loader type="table-row@4"></v-skeleton-loader>
+                          </template>
                           <template #top>
                             <div class="d-flex justify-center text-h6">模组信息</div>
                           </template>
@@ -439,14 +446,18 @@ const frefabMap = {
 const getValueOrKey = (obj, key) => obj?.hasOwnProperty(key) ? obj[key] : key
 
 const modInfo = ref([])
+const modLoading = ref(false)
 
 const handleGetModInfo = () => {
+  modLoading.value = true
   const reqForm = {
     mod: parsedDetailData.value.mods
   }
 
   Api.modInfo(reqForm).then(response => {
     modInfo.value = response.data
+  }).finally(() => {
+    modLoading.value = false
   })
 }
 
