@@ -114,7 +114,7 @@
           </template>
 
           <template #item.__rowId="{item}">
-            <v-dialog @after-leave="handleCloseDetailDialog">
+            <v-dialog v-model="detailDialog" @after-leave="handleCloseDetailDialog">
               <template #activator="{props: activatorProps}">
                 <v-btn v-bind="activatorProps" color="info" variant="plain" @click="handleDetail(item)">
                   查看
@@ -122,7 +122,15 @@
               </template>
 
               <template #default="{isActive}">
-                <v-card title="详细信息">
+                <v-card>
+                  <v-toolbar>
+                    <v-toolbar-title>
+                      详细信息
+                    </v-toolbar-title>
+                    <v-toolbar-items>
+                      <v-btn @click="detailDialog=false" icon="mdi-close"></v-btn>
+                    </v-toolbar-items>
+                  </v-toolbar>
                   <v-card-text>
                     <v-row>
                       <v-col class="d-flex justify-center">
@@ -364,6 +372,8 @@ const parsedDetailData = ref({
   mods: [],
 })
 const detailLoading = ref(false)
+
+const detailDialog = ref(false)
 
 const handleDetail = (row) => {
   const reqForm = {
