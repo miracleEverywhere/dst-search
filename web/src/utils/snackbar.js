@@ -3,7 +3,8 @@ import { ref } from 'vue';
 
 // 定义 Snackbar 的状态
 const snackbar = ref(false);
-const color = ref('success');
+const TYPE = ref('success')
+const COLOR = ref('success');
 const text = ref('');
 const location = ref('top');
 const timeout = ref(3000);
@@ -16,18 +17,22 @@ const icon = ref('ri-checkbox-circle-fill')
  */
 export function showSnackbar(message, type = 'success') {
     snackbar.value = true;
-    color.value = type;
+    TYPE.value = type
     text.value = message;
     if (type === 'success') {
+        COLOR.value = type
         icon.value = 'mdi-check-circle'
     }
     if (type === 'warning') {
+        COLOR.value = type
         icon.value = 'mdi-alert-circle'
     }
     if (type === 'error') {
+        COLOR.value = '#F56C6C'
         icon.value = 'mdi-close-circle'
     }
     if (type === 'info') {
+        COLOR.value = type
         icon.value = 'mdi-information'
     }
 }
@@ -36,7 +41,8 @@ export function showSnackbar(message, type = 'success') {
 export function useSnackbar() {
     return {
         snackbar,
-        color,
+        TYPE,
+        COLOR,
         text,
         location,
         icon,

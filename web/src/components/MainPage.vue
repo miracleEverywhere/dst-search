@@ -225,7 +225,7 @@
                       </v-col>
                       <v-col class="d-flex justify-start align-center">
                         <v-btn variant="plain" color="info"
-                               @click="copyText(parsedDetailData.connectionCode)">
+                               v-copy="parsedDetailData.connectionCode">
                           {{parsedDetailData.connectionCode}}
                         </v-btn>
                       </v-col>
@@ -421,15 +421,6 @@ const headers = [
   { title: '玩家对战', value: 'pvp' },
   { title: '详细信息', value: '__rowId' }
 ]
-
-const copyText = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text); // 写入剪贴板
-    showSnackbar('已复制直连代码')
-  } catch (err) {
-    showSnackbar('复制失败，请手动复制', 'error');
-  }
-}
 
 const frefabMap = {
   "wilson": "威尔逊",
