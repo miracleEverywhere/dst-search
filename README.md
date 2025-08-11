@@ -20,3 +20,13 @@
 
 ![详细信息](api/docs/images/detail2.png)
 
+#### 使用方法
+
+下载release中的二进制文件后，输入：
+
+```shell
+nohup ./dst-search -l 80 &
+```
+
+`-l 80` 为暴露端口，默认为7777，可按需更改
+
