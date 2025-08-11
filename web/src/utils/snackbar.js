@@ -19,16 +19,16 @@ export function showSnackbar(message, type = 'success') {
     color.value = type;
     text.value = message;
     if (type === 'success') {
-        icon.value = 'ri-checkbox-circle-fill'
+        icon.value = 'mdi-check-circle'
     }
     if (type === 'warning') {
-        icon.value = 'ri-error-warning-fill'
+        icon.value = 'mdi-alert-circle'
     }
     if (type === 'error') {
-        icon.value = 'ri-close-circle-fill'
+        icon.value = 'mdi-close-circle'
     }
     if (type === 'info') {
-        icon.value = 'ri-information-fill'
+        icon.value = 'mdi-information'
     }
 }
 

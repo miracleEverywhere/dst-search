@@ -124,7 +124,152 @@
               <template #default="{isActive}">
                 <v-card title="详细信息">
                   <v-card-text>
-                    {{detailData}}
+                    <v-row>
+                      <v-col class="d-flex justify-center">
+                        <span class="text-h5">{{detailData.name}}</span>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="d-flex justify-center">
+                        <span class="text-subtitle-1">{{detailData.desc}}</span>
+                      </v-col>
+                    </v-row>
+                    <v-divider class="mt-8 mb-8"></v-divider>
+                    <v-row>
+                      <v-col class="d-flex justify-end align-center">
+                        天数：
+                      </v-col>
+                      <v-col class="d-flex justify-start align-center">
+                        <v-chip>
+                          {{parsedDetailData.days}}
+                        </v-chip>
+                      </v-col>
+                      <v-col class="d-flex justify-end align-center">
+                        季节：
+                      </v-col>
+                      <v-col class="d-flex justify-start align-center">
+                        <v-chip v-if="detailData.season==='autumn'" color="amber">
+                          <v-icon icon="mdi-leaf-maple"></v-icon>秋
+                        </v-chip>
+                        <v-chip v-else-if="detailData.season==='winter'" color="light-blue">
+                          <v-icon icon="mdi-snowflake"></v-icon>冬
+                        </v-chip>
+                        <v-chip v-else-if="detailData.season==='spring'" color="success">
+                          <v-icon icon="mdi-leaf"></v-icon>春
+                        </v-chip>
+                        <v-chip v-else-if="detailData.season==='summer'" color="red-lighten-2">
+                          <v-icon icon="mdi-fire"></v-icon>夏
+                        </v-chip>
+                        <v-chip v-else>
+                          {{detailData.season}}
+                        </v-chip>
+                      </v-col>
+                      <v-col class="d-flex justify-end align-center">
+                        类型：
+                      </v-col>
+                      <v-col class="d-flex justify-start align-center">
+                        <v-chip v-if="detailData.intent==='survival'" color="orange">
+                          生存
+                        </v-chip>
+                        <v-chip v-else-if="detailData.intent==='endless'" color="success">
+                          无尽
+                        </v-chip>
+                        <v-chip v-else-if="detailData.intent==='relaxed'" color="info">
+                          轻松
+                        </v-chip>
+                        <v-chip v-else>
+                          {{detailData.intent}}
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="d-flex justify-end align-center">
+                        密码：
+                      </v-col>
+                      <v-col class="d-flex justify-start align-center">
+                        <v-chip v-if="detailData.password">
+                          有
+                        </v-chip>
+                        <v-chip v-else>
+                          无
+                        </v-chip>
+                      </v-col>
+                      <v-col class="d-flex justify-end align-center">
+                        版本：
+                      </v-col>
+                      <v-col class="d-flex justify-start align-center">
+                        <v-chip>
+                          {{detailData.v}}
+                        </v-chip>
+                      </v-col>
+                      <v-col class="d-flex justify-end align-center">
+                        Tick：
+                      </v-col>
+                      <v-col class="d-flex justify-start align-center">
+                        <v-chip>
+                          {{detailData.tick}}
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col cols="2" class="d-flex justify-end align-center">
+                        直连代码：
+                      </v-col>
+                      <v-col class="d-flex justify-start align-center">
+                        <v-btn variant="plain" color="info"
+                               @click="copyText(parsedDetailData.connectionCode)">
+                          {{parsedDetailData.connectionCode}}
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                    <v-divider class="mt-8 mb-8"></v-divider>
+                    <v-row class="d-flex justify-center">
+                      <template v-if="parsedDetailData.players.length !== 0">
+                        <v-table class="w-75">
+                          <template #top>
+                            <div class="d-flex justify-center text-h6">在线玩家</div>
+                          </template>
+                          <thead>
+                            <tr>
+                              <th>
+                                玩家昵称
+                              </th>
+                              <th>
+                                玩家角色
+                              </th>
+                              <th>
+                                玩家颜色
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="player in parsedDetailData.players">
+                              <td>
+                                {{player.name}}
+                              </td>
+                              <td>
+                                {{getValueOrKey(frefabMap, player.prefab)}}
+                              </td>
+                              <td>
+                                <v-icon icon="mdi-checkbox-blank" :color="'#'+player.color"></v-icon>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </v-table>
+                      </template>
+                      <template v-else>
+                        <div class="w-75">
+                          <v-alert text="没有发现在线玩家" type="info" variant="outlined"/>
+                        </div>
+
+                      </template>
+                    </v-row>
+                    <v-divider class="mt-8 mb-8"></v-divider>
+                    <v-row>
+                      <v-col>
+                        {{parsedDetailData.mods}}
+                      </v-col>
+                    </v-row>
                   </v-card-text>
                 </v-card>
               </template>
@@ -133,7 +278,6 @@
         </v-data-table>
       </v-card-text>
     </v-card>
-
   </v-dialog>
 </template>
 
@@ -158,6 +302,9 @@ const dialogVisible = ref(false)
 
 const closeDialog = () => {
   searchText.value = ''
+  tableData.value = []
+  detailData.value = {}
+  parsedDetailData.value = {}
   dialogVisible.value = false
 }
 
@@ -193,9 +340,14 @@ const handleSearch = async () => {
   }
 }
 
-const detailData = ref({
-
+const detailData = ref({})
+const parsedDetailData = ref({
+  dats: 0,
+  connectionCode: '',
+  players: [],
+  mods: [],
 })
+const detailLoading = ref(false)
 
 const handleDetail = (row) => {
   const reqForm = {
@@ -203,8 +355,31 @@ const handleDetail = (row) => {
     region: row.region
   }
 
+  detailLoading.value = true
+
   Api.detail(reqForm).then(response => {
     detailData.value = response.data
+    parsedDetailData.value['days'] = detailData.value.data.match(/day=(\d+)/)[1]
+    parsedDetailData.value['connectionCode'] = `c_connect("${detailData.value.__addr}", ${detailData.value.port})`
+    const playerMatches = detailData.value.players.matchAll(/colour="([^"]+)".*?name="([^"]+)".*?prefab="([^"]+)"/gs);
+    const players = []
+    for (const match of playerMatches) {
+      players.push({
+        color: match[1],
+        name: match[2],
+        prefab: match[3]
+      })
+    }
+    parsedDetailData.value['players'] = players
+    if (detailData.value.mods_info === null) {
+      detailData.value.mods_info = []
+    }
+    parsedDetailData.value['mods'] = []
+    for (let i = 0; i < detailData.value.mods_info.length; i += 5) {
+      parsedDetailData.value['mods'].push(detailData.value.mods_info[i+1])
+    }
+  }).finally(() => {
+    detailLoading.value = false
   })
 }
 
@@ -219,6 +394,39 @@ const headers = [
   { title: '玩家对战', value: 'pvp' },
   { title: '详细信息', value: '__rowId' }
 ]
+
+const copyText = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text); // 写入剪贴板
+    showSnackbar('已复制直连代码')
+  } catch (err) {
+    showSnackbar('复制失败，请手动复制', 'error');
+  }
+}
+
+const frefabMap = {
+  "wilson": "威尔逊",
+  "willow": "薇洛",
+  "wolfgang": "沃尔夫冈",
+  "wendy": "温蒂",
+  "wx78": "WX-78",
+  "wickerbottom": "薇克巴顿",
+  "woodie": "伍迪",
+  "wes": "韦斯",
+  "waxwell": "麦斯威尔",
+  "wathgrithr": "薇格弗德",
+  "webber": "韦伯",
+  "winona": "薇诺娜",
+  "warly": "沃利",
+  "walter": "沃尔特",
+  "wortox": "沃拓克斯",
+  "wormwood": "沃姆伍德",
+  "wurt": "沃特",
+  "wanda": "旺达",
+  "wonkey": "芜猴"
+}
+
+const getValueOrKey = (obj, key) => obj?.hasOwnProperty(key) ? obj[key] : key
 
 </script>
 
