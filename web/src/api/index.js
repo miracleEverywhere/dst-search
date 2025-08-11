@@ -5,4 +5,7 @@ export default {
   search: async function (data) {
     return await http.post('/search', data);
   },
+  detail: async function (data) {
+    return await http.post('/detail', data);
+  },
 }

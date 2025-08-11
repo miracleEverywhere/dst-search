@@ -29,7 +29,7 @@
       </v-col>
 
       <v-col cols="12" class="d-flex justify-center">
-        <v-text-field v-model="searchText" clearable label="房间名" variant="outlined">
+        <v-text-field v-model="searchText" clearable label="房间名" variant="outlined" @keyup.enter="handleSearch">
           <template #append>
             <v-btn size="x-large" variant="outlined" :loading="searchButtonLoading" @click="handleSearch">
               查询
@@ -40,7 +40,7 @@
     </v-row>
   </v-container>
 
-  <v-dialog v-model="dialogVisible" fullscreen>
+  <v-dialog v-model="dialogVisible" fullscreen @after-leave="closeDialog">
     <v-card>
       <v-toolbar>
         <v-toolbar-title>
@@ -113,10 +113,10 @@
             </v-chip>
           </template>
 
-          <template #item.__rowId="{value}">
+          <template #item.__rowId="{item}">
             <v-dialog>
               <template #activator="{props: activatorProps}">
-                <v-btn v-bind="activatorProps" color="info" variant="plain" @click="handleDetail(value)">
+                <v-btn v-bind="activatorProps" color="info" variant="plain" @click="handleDetail(item)">
                   查看
                 </v-btn>
               </template>
@@ -124,7 +124,7 @@
               <template #default="{isActive}">
                 <v-card title="详细信息">
                   <v-card-text>
-                    123
+                    {{detailData}}
                   </v-card-text>
                 </v-card>
               </template>
@@ -142,6 +142,7 @@ import logo from '@/assets/logo.png'
 import {ref} from "vue";
 import Api from '@/api'
 import { showSnackbar } from '@/utils/snackbar'
+
 
 const regions = ref({
   'ap-southeast-1': true,
@@ -179,6 +180,11 @@ const handleSearch = async () => {
   })
   try {
     const response = await Api.search(reqForm)
+    if (response.data === null) {
+      searchButtonLoading.value = false
+      showSnackbar("没有找到对应的结果", "warning")
+      return
+    }
     tableData.value = response.data
     dialogVisible.value = true
     searchButtonLoading.value = false
@@ -187,8 +193,19 @@ const handleSearch = async () => {
   }
 }
 
-const handleDetail = (rowId) => {
-  console.log(rowId)
+const detailData = ref({
+
+})
+
+const handleDetail = (row) => {
+  const reqForm = {
+    rowId: row.__rowId,
+    region: row.region
+  }
+
+  Api.detail(reqForm).then(response => {
+    detailData.value = response.data
+  })
 }
 
 const headers = [
