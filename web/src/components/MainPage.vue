@@ -52,7 +52,85 @@
       </v-toolbar>
 
       <v-card-text>
-        <v-data-table :headers="headers" :items="tableData"></v-data-table>
+        <v-data-table :headers="headers" :items="tableData">
+          <template #item.dedicated="{value}">
+            <v-chip v-if="value" color="green" label>
+              是
+            </v-chip>
+            <v-chip v-else color="red" label>
+              否
+            </v-chip>
+          </template>
+
+          <template #item.intent="{value}">
+            <v-chip v-if="value==='survival'" color="orange">
+              生存
+            </v-chip>
+            <v-chip v-else-if="value==='endless'" color="success">
+              无尽
+            </v-chip>
+            <v-chip v-else-if="value==='relaxed'" color="info">
+              轻松
+            </v-chip>
+            <v-chip v-else>
+              {{value}}
+            </v-chip>
+          </template>
+
+          <template #item.mods="{value}">
+            <v-chip v-if="value">
+              是
+            </v-chip>
+            <v-chip v-else>
+              否
+            </v-chip>
+          </template>
+
+          <template #item.season="{value}">
+            <v-chip v-if="value==='autumn'" color="amber">
+              <v-icon icon="mdi-leaf-maple"></v-icon>秋
+            </v-chip>
+            <v-chip v-else-if="value==='winter'" color="light-blue">
+              <v-icon icon="mdi-snowflake"></v-icon>冬
+            </v-chip>
+            <v-chip v-else-if="value==='spring'" color="success">
+              <v-icon icon="mdi-leaf"></v-icon>春
+            </v-chip>
+            <v-chip v-else-if="value==='summer'" color="red-lighten-2">
+              <v-icon icon="mdi-fire"></v-icon>夏
+            </v-chip>
+            <v-chip v-else>
+              {{value}}
+            </v-chip>
+          </template>
+
+          <template #item.pvp="{value}">
+            <v-chip v-if="value">
+              是
+            </v-chip>
+            <v-chip v-else>
+              否
+            </v-chip>
+          </template>
+
+          <template #item.__rowId="{value}">
+            <v-dialog>
+              <template #activator="{props: activatorProps}">
+                <v-btn v-bind="activatorProps" color="info" variant="plain" @click="handleDetail(value)">
+                  查看
+                </v-btn>
+              </template>
+
+              <template #default="{isActive}">
+                <v-card title="详细信息">
+                  <v-card-text>
+                    123
+                  </v-card-text>
+                </v-card>
+              </template>
+            </v-dialog>
+          </template>
+        </v-data-table>
       </v-card-text>
     </v-card>
 
@@ -78,6 +156,7 @@ const searchButtonLoading = ref(false)
 const dialogVisible = ref(false)
 
 const closeDialog = () => {
+  searchText.value = ''
   dialogVisible.value = false
 }
 
@@ -98,10 +177,18 @@ const handleSearch = async () => {
       reqForm.regions.push(key)
     }
   })
-  const response = await Api.search(reqForm)
-  tableData.value = response.data
-  searchButtonLoading.value = false
-  dialogVisible.value = true
+  try {
+    const response = await Api.search(reqForm)
+    tableData.value = response.data
+    dialogVisible.value = true
+    searchButtonLoading.value = false
+  } catch {
+    searchButtonLoading.value = false
+  }
+}
+
+const handleDetail = (rowId) => {
+  console.log(rowId)
 }
 
 const headers = [
@@ -113,6 +200,7 @@ const headers = [
   { title: '含有模组', value: 'mods' },
   { title: '季节', value: 'season' },
   { title: '玩家对战', value: 'pvp' },
+  { title: '详细信息', value: '__rowId' }
 ]
 
 </script>
