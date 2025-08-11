@@ -17,6 +17,9 @@ func main() {
 	flag.IntVar(&BindPort, "l", 7777, "监听端口，如： -l 8080 (Listening Port, e.g. -l 8080)")
 	flag.Parse()
 
+	gin.SetMode(gin.ReleaseMode)
+	gin.DisableConsoleColor()
+
 	r := gin.Default()
 	r.POST("/search", handlers.SearchPost)
 	r.POST("/detail", handlers.DetailPost)
