@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -96,7 +97,38 @@ type ServerDetail struct {
 	NAT             int    `json:"nat"`
 }
 
-func Search(c *gin.Context) {
+type Tags struct {
+	Tag         string `json:"tag"`
+	DisplayName string `json:"display_name"`
+}
+
+type VoteData struct {
+	Score     float64 `json:"score"`
+	VotesUp   int     `json:"votes_up"`
+	VotesDown int     `json:"votes_down"`
+}
+
+type PublishedFileDetails struct {
+	ID              string   `json:"publishedfileid"`
+	FileSize        string   `json:"file_size"`
+	FileDescription string   `json:"file_description"`
+	FileUrl         string   `json:"file_url"`
+	Title           string   `json:"title"`
+	Tags            []Tags   `json:"tags"`
+	PreviewUrl      string   `json:"preview_url"`
+	VoteData        VoteData `json:"vote_data"`
+}
+
+type ModInfo struct {
+	Total                int                    `json:"total"`
+	Publishedfiledetails []PublishedFileDetails `json:"publishedfiledetails"`
+}
+
+type ModInfoResponse struct {
+	ModInfo ModInfo `json:"response"`
+}
+
+func SearchPost(c *gin.Context) {
 	type SearchForm struct {
 		Text    string   `form:"text" json:"text"`
 		Regions []string `form:"regions" json:"regions"`
@@ -168,7 +200,7 @@ func Search(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 200, "message": "success", "data": data})
 }
 
-func Detail(c *gin.Context) {
+func DetailPost(c *gin.Context) {
 	type DetailForm struct {
 		RowID  string `form:"rowId" json:"rowId"`
 		Region string `form:"region" json:"region"`
@@ -224,4 +256,77 @@ func Detail(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"code": 200, "message": "success", "data": detailResponse.GET[0]})
+}
+
+func ModInfoPost(c *gin.Context) {
+	type ReqForm struct {
+		Mod []int `json:"mod"`
+	}
+
+	var reqForm ReqForm
+
+	if err := c.ShouldBindJSON(&reqForm); err != nil {
+		fmt.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	obfuscated := []byte{
+		0xD5, 0xED, 0xDA, 0x66, 0x64, 0xFF, 0x23, 0xA6,
+		0xB3, 0xD8, 0x50, 0x2C, 0x63, 0xB1, 0xBF, 0x6D,
+	}
+	var apiData []byte
+	for _, b := range obfuscated {
+		apiData = append(apiData, b^0x55)
+	}
+	apiKey := hex.EncodeToString(apiData)
+	steamUrl := "http://api.steampowered.com/IPublishedFileService/GetDetails/v1/"
+
+	url := fmt.Sprintf("%s?language=%d&key=%s", steamUrl, 6, apiKey)
+	for index, mod := range reqForm.Mod {
+		url = url + fmt.Sprintf("&publishedfileids[%d]=%d", index, mod)
+	}
+
+	client := &http.Client{
+		Timeout: 30 * time.Second, // 设置超时时间为5秒
+	}
+	httpResponse, err := client.Get(url)
+	if err != nil {
+		fmt.Println(err.Error())
+		c.JSON(http.StatusOK, gin.H{"code": 201, "message": "获取模组信息失败", "data": nil})
+		return
+	}
+	defer httpResponse.Body.Close()
+	// 检查 HTTP 状态码
+	if httpResponse.StatusCode != http.StatusOK {
+		fmt.Println(err.Error())
+		c.JSON(http.StatusOK, gin.H{"code": 201, "message": "获取模组信息失败", "data": nil})
+		return
+	}
+	var modInfoResponse ModInfoResponse
+	if err := json.NewDecoder(httpResponse.Body).Decode(&modInfoResponse); err != nil {
+		fmt.Println(err.Error())
+		c.JSON(http.StatusOK, gin.H{"code": 201, "message": "获取模组信息失败", "data": nil})
+		return
+	}
+
+	type Data struct {
+		Name  string `json:"name"`
+		Image string `json:"image"`
+		ID    string `json:"id"`
+		Size  string `json:"size"`
+	}
+
+	var data []Data
+
+	for _, mod := range modInfoResponse.ModInfo.Publishedfiledetails {
+		data = append(data, Data{
+			Name:  mod.Title,
+			Image: mod.PreviewUrl,
+			ID:    mod.ID,
+			Size:  mod.FileSize,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 200, "message": "success", "data": data})
 }

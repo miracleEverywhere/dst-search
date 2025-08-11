@@ -8,4 +8,7 @@ export default {
   detail: async function (data) {
     return await http.post('/detail', data);
   },
+  modInfo: async function (data) {
+    return await http.post('/mod_info', data);
+  },
 }

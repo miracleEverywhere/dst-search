@@ -114,7 +114,7 @@
           </template>
 
           <template #item.__rowId="{item}">
-            <v-dialog>
+            <v-dialog @after-leave="handleCloseDetailDialog">
               <template #activator="{props: activatorProps}">
                 <v-btn v-bind="activatorProps" color="info" variant="plain" @click="handleDetail(item)">
                   查看
@@ -224,50 +224,54 @@
                     </v-row>
                     <v-divider class="mt-8 mb-8"></v-divider>
                     <v-row class="d-flex justify-center">
-                      <template v-if="parsedDetailData.players.length !== 0">
-                        <v-table class="w-75">
-                          <template #top>
-                            <div class="d-flex justify-center text-h6">在线玩家</div>
-                          </template>
-                          <thead>
-                            <tr>
-                              <th>
-                                玩家昵称
-                              </th>
-                              <th>
-                                玩家角色
-                              </th>
-                              <th>
-                                玩家颜色
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr v-for="player in parsedDetailData.players">
-                              <td>
-                                {{player.name}}
-                              </td>
-                              <td>
-                                {{getValueOrKey(frefabMap, player.prefab)}}
-                              </td>
-                              <td>
-                                <v-icon icon="mdi-checkbox-blank" :color="'#'+player.color"></v-icon>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </v-table>
-                      </template>
-                      <template v-else>
-                        <div class="w-75">
-                          <v-alert text="没有发现在线玩家" type="info" variant="outlined"/>
-                        </div>
-
-                      </template>
+                      <v-data-table :headers="playerHeaders" :items="parsedDetailData.players" class="w-75">
+                        <template #top>
+                          <div class="d-flex justify-center text-h6">在线玩家</div>
+                        </template>
+                        <template #no-data>
+                          没有发现在线玩家
+                        </template>
+                        <template #item.prefab="{value}">
+                          {{getValueOrKey(frefabMap, value)}}
+                        </template>
+                        <template #item.color="{value}">
+                          <v-icon icon="mdi-checkbox-blank" :color="'#'+value"></v-icon>
+                        </template>
+                      </v-data-table>
                     </v-row>
                     <v-divider class="mt-8 mb-8"></v-divider>
                     <v-row>
-                      <v-col>
-                        {{parsedDetailData.mods}}
+                      <v-col class="d-flex justify-center">
+                        <v-data-table :headers="modHeaders" :items="modInfo" class="w-75">
+                          <template #top>
+                            <div class="d-flex justify-center text-h6">模组信息</div>
+                          </template>
+                          <template #no-data>
+                            没有发现模组
+                          </template>
+                          <template #item.name="{value}">
+                            <v-chip v-if="value" color="success">
+                              {{value}}
+                            </v-chip>
+                            <v-chip v-else color="error">
+                              获取失败
+                            </v-chip>
+                          </template>
+                          <template #item.image="{value}">
+                            <v-img v-if="value" :width="100" :src="value" class="ma-4"></v-img>
+                            <v-chip v-else color="error">
+                              获取失败
+                            </v-chip>
+                          </template>
+                          <template #item.size="{value}">
+                            <v-chip v-if="value" color="info">
+                              {{formatBytes(value)}}
+                            </v-chip>
+                            <v-chip v-else color="error">
+                              获取失败
+                            </v-chip>
+                          </template>
+                        </v-data-table>
                       </v-col>
                     </v-row>
                   </v-card-text>
@@ -304,7 +308,12 @@ const closeDialog = () => {
   searchText.value = ''
   tableData.value = []
   detailData.value = {}
-  parsedDetailData.value = {}
+  parsedDetailData.value = {
+    dats: 0,
+    connectionCode: '',
+    players: [],
+    mods: [],
+  }
   dialogVisible.value = false
 }
 
@@ -376,8 +385,9 @@ const handleDetail = (row) => {
     }
     parsedDetailData.value['mods'] = []
     for (let i = 0; i < detailData.value.mods_info.length; i += 5) {
-      parsedDetailData.value['mods'].push(detailData.value.mods_info[i+1])
+      parsedDetailData.value['mods'].push(parseInt(detailData.value.mods_info[i].split('-')[1]))
     }
+    handleGetModInfo()
   }).finally(() => {
     detailLoading.value = false
   })
@@ -427,6 +437,51 @@ const frefabMap = {
 }
 
 const getValueOrKey = (obj, key) => obj?.hasOwnProperty(key) ? obj[key] : key
+
+const modInfo = ref([])
+
+const handleGetModInfo = () => {
+  const reqForm = {
+    mod: parsedDetailData.value.mods
+  }
+
+  Api.modInfo(reqForm).then(response => {
+    modInfo.value = response.data
+  })
+}
+
+const formatBytes = (bytes, num=2) => {
+  if (bytes === 0) return '0 B';
+
+  const k = 1024;
+  const sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(num)) + ' ' + sizes[i];
+}
+
+const modHeaders = [
+  { title: '名称', value: 'name' },
+  { title: '预览', value: 'image' },
+  { title: 'ID', value: 'id' },
+  { title: '大小', value: 'size' },
+]
+
+const playerHeaders = [
+  { title: '玩家昵称', value: 'name' },
+  { title: '玩家角色', value: 'prefab' },
+  { title: '游戏中颜色', value: 'color' },
+]
+
+const handleCloseDetailDialog = () => {
+  modInfo.value = []
+  const parsedDetailData = {
+    dats: 0,
+    connectionCode: '',
+    players: [],
+    mods: [],
+  }
+}
 
 </script>
 

@@ -18,8 +18,9 @@ func main() {
 	flag.Parse()
 
 	r := gin.Default()
-	r.POST("/search", handlers.Search)
-	r.POST("/detail", handlers.Detail)
+	r.POST("/search", handlers.SearchPost)
+	r.POST("/detail", handlers.DetailPost)
+	r.POST("/mod_info", handlers.ModInfoPost)
 	r.Use(static.ServeEmbed("dist", EmbedFS))
 
 	if err := r.Run(fmt.Sprintf(":%d", BindPort)); err != nil {
