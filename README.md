@@ -2,7 +2,9 @@
 
 闲暇时光写了一个小工具，可部署在自己的环境，供自己和他人查询饥荒服务器
 
-欢迎品尝：[饥荒服务器查询](http://8.137.107.46:7777/)
+欢迎品尝：[http://8.137.107.46:7777](http://8.137.107.46:7777)
+
+帮助文档：[https://miraclesses.top/project/dst-search.html](https://miraclesses.top/project/dst-search.html)
 
 #### 首页
 

@@ -94,7 +94,7 @@
               <v-icon icon="mdi-snowflake"></v-icon>冬
             </v-chip>
             <v-chip v-else-if="value==='spring'" color="success">
-              <v-icon icon="mdi-leaf"></v-icon>春
+              <v-icon icon="mdi-sprout"></v-icon>春
             </v-chip>
             <v-chip v-else-if="value==='summer'" color="red-lighten-2">
               <v-icon icon="mdi-fire"></v-icon>夏
@@ -244,7 +244,7 @@
                           没有发现在线玩家
                         </template>
                         <template #item.prefab="{value}">
-                          {{getValueOrKey(frefabMap, value)}}
+                          {{getValueOrKey(prefabMap, value)}}
                         </template>
                         <template #item.color="{value}">
                           <v-icon icon="mdi-checkbox-blank" :color="'#'+value"></v-icon>
@@ -422,7 +422,7 @@ const headers = [
   { title: '详细信息', value: '__rowId' }
 ]
 
-const frefabMap = {
+const prefabMap = {
   "wilson": "威尔逊",
   "willow": "薇洛",
   "wolfgang": "沃尔夫冈",
