@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { showSnackbar } from '@/utils/snackbar';
+import { showSnackbar } from '../utils/snackbar';
 
 
 // 创建一个 axios 实例
