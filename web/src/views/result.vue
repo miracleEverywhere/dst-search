@@ -194,7 +194,7 @@
             </v-col>
             <v-col class="d-flex justify-start align-center">
               <v-btn variant="plain" color="info"
-                     v-copy="parsedDetailData.connectionCode">
+                     @click="copy(parsedDetailData.connectionCode)">
                 {{parsedDetailData.connectionCode}}
               </v-btn>
             </v-col>
@@ -276,6 +276,7 @@ import router from "../router/index.js";
 import {useStore} from '../store/index.js'
 import {ref} from "vue";
 import Api from "../api/index.js";
+import {showSnackbar} from "../utils/snackbar.js";
 
 
 const store = useStore()
@@ -405,6 +406,16 @@ const playerHeaders = [
   { title: '玩家角色', value: 'prefab' },
   { title: '游戏中颜色', value: 'color' },
 ]
+
+const copy = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    showSnackbar('复制成功')
+  } catch {
+    showSnackbar('复制失败', 'error')
+  }
+
+}
 
 const handleCloseDetailDialog = () => {
   modInfo.value = []
