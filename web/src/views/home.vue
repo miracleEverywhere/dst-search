@@ -1,6 +1,6 @@
 <template>
-  <v-container class="fill-height" height="10">
-    <v-row class="justify-center" style="margin-top: -25vh">
+  <v-container class="fill-height">
+    <v-row class="justify-center" style="margin-top: 20vh">
       <v-col cols="12" class="d-flex justify-center align-center">
         <div style="height: 100px">
           <v-img :src="logo" :width="100"></v-img>

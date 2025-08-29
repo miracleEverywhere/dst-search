@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-layout style="width: 100%">
+    <v-layout>
       <v-app-bar>
         <template #prepend>
           <v-btn icon="mdi-arrow-left" @click="gotoHome"></v-btn>
@@ -10,7 +10,7 @@
         </v-app-bar-title>
       </v-app-bar>
 
-      <v-data-table :headers="headers" :items="store.data" hover style="width: 100%">
+      <v-data-table :headers="headers" :items="store.data" hover style="margin-top: 72px">
         <template #item.dedicated="{value}">
           <v-chip v-if="value" color="green" label>
             是
@@ -29,6 +29,12 @@
           </v-chip>
           <v-chip v-else-if="value==='relaxed'" color="info">
             轻松
+          </v-chip>
+          <v-chip v-else-if="value==='wilderness'" color="error">
+            荒野
+          </v-chip>
+          <v-chip v-else-if="value==='oceanfishing'" color="amber">
+            海钓
           </v-chip>
           <v-chip v-else>
             {{value}}
@@ -142,6 +148,12 @@
               <v-chip v-else-if="detailData.intent==='relaxed'" color="info">
                 轻松
               </v-chip>
+              <v-chip v-else-if="detailData.intent==='wilderness'" color="error">
+                荒野
+              </v-chip>
+              <v-chip v-else-if="detailData.intent==='oceanfishing'" color="amber">
+                海钓
+              </v-chip>
               <v-chip v-else>
                 {{detailData.intent}}
               </v-chip>
@@ -233,6 +245,11 @@
                   <v-img v-if="value" :width="100" :src="value" class="ma-4"></v-img>
                   <v-chip v-else color="error">
                     获取失败
+                  </v-chip>
+                </template>
+                <template #item.id="{value}">
+                  <v-chip>
+                    {{value}}
                   </v-chip>
                 </template>
                 <template #item.size="{value}">
